@@ -37,8 +37,7 @@ export function ServiceSelection() {
 
   const handleContinue = () => {
     if (selectedServices.length > 0) {
-      sessionStorage.setItem("selectedServices", JSON.stringify(selectedServices));
-      navigate("/queue-confirmation");
+      navigate(`/queue-confirmation?services=${selectedServices.join(",")}`);
     }
   };
 

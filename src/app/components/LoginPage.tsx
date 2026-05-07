@@ -12,7 +12,12 @@ export function LoginPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget as HTMLFormElement);
+    const username = String(formData.get("username") ?? "").trim();
+
     if (selectedPortal === "student") {
+      sessionStorage.setItem("studentId", username);
+      sessionStorage.setItem("studentName", username);
       navigate("/student");
     } else {
       navigate("/staff");
@@ -172,6 +177,7 @@ export function LoginPage() {
                   </div>
                   <input
                     id="username"
+                    name="username"
                     type="text"
                     placeholder={isStudent ? "Enter student ID" : "Enter staff ID"}
                     className="w-full pl-10 pr-4 py-2.5 bg-input-background border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all text-sm text-white placeholder:text-slate-500"
@@ -190,6 +196,7 @@ export function LoginPage() {
                   </div>
                   <input
                     id="password"
+                    name="password"
                     type="password"
                     placeholder="Enter password"
                     className="w-full pl-10 pr-4 py-2.5 bg-input-background border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all text-sm text-white placeholder:text-slate-500"
