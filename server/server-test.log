@@ -1,0 +1,4 @@
+ENV CHECK: { MONGODB_URI: 'OK', PORT: '5055', NODE_ENV: 'development' }
+Connecting to MongoDB...
+MongoDB connected
+API server running on port 5055
