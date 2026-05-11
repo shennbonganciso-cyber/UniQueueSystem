@@ -9,6 +9,8 @@ export function subscribeToQueueUpdates(onQueueChanged: () => void) {
   if (!socket) {
     socket = io(SOCKET_URL, {
       transports: ["websocket", "polling"],
+      path: "/socket.io",
+      withCredentials: false,
     });
   }
 

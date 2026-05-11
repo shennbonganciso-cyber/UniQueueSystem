@@ -6,21 +6,66 @@ import { Footer } from "./Footer";
 
 type PortalType = "student" | "staff" | null;
 
+const API_URL =
+  import.meta.env.VITE_API_URL ??
+  (import.meta.env.DEV ? "http://localhost:5000/api" : "https://uniqueuesea.onrender.com/api");
+
 export function LoginPage() {
   const navigate = useNavigate();
   const [selectedPortal, setSelectedPortal] = useState<PortalType>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget as HTMLFormElement);
-    const username = String(formData.get("username") ?? "").trim();
+    setError(null);
+    setLoading(true);
 
-    if (selectedPortal === "student") {
-      sessionStorage.setItem("studentId", username);
-      sessionStorage.setItem("studentName", username);
-      navigate("/student");
-    } else {
-      navigate("/staff");
+    try {
+      const formData = new FormData(e.currentTarget as HTMLFormElement);
+      const studentId = String(formData.get("username") ?? "").trim();
+      const password = String(formData.get("password") ?? "").trim();
+
+      if (!studentId || !password) {
+        setError("Please fill in all fields");
+        setLoading(false);
+        return;
+      }
+
+      // Call backend API
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ studentId, password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Login failed");
+      }
+
+      const data = await response.json();
+
+      // Store user data
+      sessionStorage.setItem("user", JSON.stringify(data.user));
+      sessionStorage.setItem("studentId", data.user.studentId);
+      sessionStorage.setItem("studentName", data.user.name || data.user.studentId);
+      sessionStorage.setItem("userRole", data.user.role || selectedPortal);
+
+      // Navigate to appropriate page
+      if (selectedPortal === "student") {
+        navigate("/student");
+      } else {
+        navigate("/staff");
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Connection error. Is the server running?";
+      setError(message);
+      console.error("Login error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -166,6 +211,11 @@ export function LoginPage() {
           </div>
 
           <div className="bg-card backdrop-blur-xl rounded-2xl p-6 border border-white/10 shadow-2xl">
+            {error && (
+              <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-sm">
+                {error}
+              </div>
+            )}
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label htmlFor="username" className="block text-xs mb-2">
@@ -207,11 +257,16 @@ export function LoginPage() {
 
               <button
                 type="submit"
-                className={`relative w-full group overflow-hidden bg-gradient-to-r ${gradientFrom} ${gradientTo} text-white py-2.5 rounded-xl hover:shadow-2xl hover:shadow-indigo-500/25 transition-all duration-300 flex items-center justify-center gap-2`}
+                disabled={loading}
+                className={`relative w-full group overflow-hidden bg-gradient-to-r ${gradientFrom} ${gradientTo} text-white py-2.5 rounded-xl hover:shadow-2xl hover:shadow-indigo-500/25 transition-all duration-300 flex items-center justify-center gap-2 ${
+                  loading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                 <LogIn className="w-4 h-4 relative z-10" />
-                <span className="relative z-10 text-sm">Sign In</span>
+                <span className="relative z-10 text-sm">
+                  {loading ? "Signing in..." : "Sign In"}
+                </span>
               </button>
             </form>
           </div>

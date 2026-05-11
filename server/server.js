@@ -30,7 +30,7 @@ const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
 
 // =====================
-// ALLOWED ORIGINS (FIXED FOR VITE)
+// ALLOWED ORIGINS
 // =====================
 const allowedOrigins = [
   "http://localhost:5173",
@@ -41,7 +41,24 @@ const allowedOrigins = [
   "http://127.0.0.1:5174",
   "http://127.0.0.1:5175",
   "http://127.0.0.1:5176",
+  "https://uni-queue-system.vercel.app",
+  "https://uniqueuesea.onrender.com",
 ];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    console.warn("❌ CORS blocked origin:", origin);
+    return callback(null, false);
+  },
+  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  credentials: false,
+  optionsSuccessStatus: 204,
+};
 
 // =====================
 // SOCKET.IO
@@ -49,8 +66,10 @@ const allowedOrigins = [
 const io = new Server(httpServer, {
   cors: {
     origin: allowedOrigins,
-    credentials: true,
+    methods: ["GET", "POST"],
+    credentials: false,
   },
+  path: "/socket.io",
 });
 
 app.set("io", io);
@@ -64,23 +83,10 @@ console.log("ENV CHECK:", {
 });
 
 // =====================
-// MIDDLEWARE (CRITICAL FIX HERE)
+// MIDDLEWARE
 // =====================
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // allow REST tools (no origin) + allowed origins
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      console.log("❌ Blocked CORS:", origin);
-      return callback(null, false);
-    },
-    credentials: true,
-  })
-);
-
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -91,7 +97,6 @@ app.use("/api", healthRoutes);
 app.use("/api/queues", queueRoutes);
 app.use("/api/auth", authRoutes);
 
-// fallback health (guaranteed working)
 app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
@@ -125,7 +130,7 @@ app.use((err, req, res, next) => {
 });
 
 // =====================
-// DATABASE (SAFE)
+// DATABASE
 // =====================
 async function connectDatabase() {
   if (!MONGODB_URI) {
