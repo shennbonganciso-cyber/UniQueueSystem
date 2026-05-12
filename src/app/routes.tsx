@@ -9,6 +9,7 @@ import { StaffDashboard } from "./components/StaffDashboard";
 import { QueueMonitoring } from "./components/QueueMonitoring";
 import { ReportsPage } from "./components/ReportsPage";
 import { StudentSettings } from "./components/StudentSettings";
+import { RouteGuard } from "./components/RouteGuard";
 
 const routes: RouteObject[] = [
   {
@@ -18,14 +19,25 @@ const routes: RouteObject[] = [
       { index: true, Component: LoginPage },
       {
         path: "student",
+        element: (
+          <RouteGuard allowedRoles={["student"]}>
+            <StudentDashboard />
+          </RouteGuard>
+        ),
         children: [
-          { index: true, Component: StudentDashboard },
           { path: "settings", Component: StudentSettings },
         ],
       },
       { path: "services", Component: ServiceSelection },
       { path: "queue-confirmation", Component: QueueConfirmation },
-      { path: "staff", Component: StaffDashboard },
+      {
+        path: "staff",
+        element: (
+          <RouteGuard allowedRoles={["staff", "admin"]}>
+            <StaffDashboard />
+          </RouteGuard>
+        ),
+      },
       { path: "monitor", Component: QueueMonitoring },
       { path: "reports", Component: ReportsPage },
     ],

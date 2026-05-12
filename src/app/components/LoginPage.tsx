@@ -38,7 +38,7 @@ export function LoginPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ studentId, password }),
+        body: JSON.stringify({ studentId, password, role: selectedPortal }),
       });
 
       if (!response.ok) {

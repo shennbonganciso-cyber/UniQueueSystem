@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { Outlet } from "react-router";
 import {
   AlertCircle,
   Bell,
@@ -279,6 +280,7 @@ export function StudentDashboard() {
 </header>
 
       <main className="max-w-7xl mx-auto px-4 py-4">
+        <Outlet />
         {error && <p className="text-center text-sm text-red-400 mb-4">{error}</p>}
 
         {renderToast(rejoinedQueueName, () => setRejoinedQueueName(null), "blue", "Rejoined Successfully", `Your queue has been re-added for ${rejoinedQueueName}.`)}
