@@ -13,6 +13,7 @@ import {
   TrendingUp,
   Users,
   XCircle,
+  Settings,
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { Footer } from "./Footer";
@@ -242,23 +243,40 @@ export function StudentDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-950 flex flex-col">
       <header className="bg-card/50 backdrop-blur-xl border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Logo size="md" />
-            <div className="border-l border-white/10 pl-3 ml-1">
-              <h1 className="text-base">UniQueue</h1>
-              <p className="text-xs text-slate-400">Student Portal</p>
-            </div>
-          </div>
-          <button
-            onClick={() => navigate("/")}
-            className="flex items-center gap-2 px-4 py-2.5 text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10"
-          >
-            <LogOut className="w-4 h-4" />
-            <span className="hidden sm:inline text-sm">Logout</span>
-          </button>
-        </div>
-      </header>
+  <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between">
+    
+    {/* LEFT SIDE */}
+    <div className="flex items-center gap-3">
+      <Logo size="md" />
+      <div className="border-l border-white/10 pl-3 ml-1">
+        <h1 className="text-base">UniQueue</h1>
+        <p className="text-xs text-slate-400">Student Portal</p>
+      </div>
+    </div>
+
+    {/* RIGHT SIDE BUTTONS */}
+    <div className="flex items-center gap-2">
+
+      {/* SETTINGS BUTTON */}
+      <button
+        onClick={() => navigate("/student/settings")}
+        className="px-4 py-2.5 text-sm text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all"
+      >
+        Settings
+      </button>
+
+      {/* LOGOUT BUTTON */}
+      <button
+        onClick={() => navigate("/")}
+        className="flex items-center gap-2 px-4 py-2.5 text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10"
+      >
+        <LogOut className="w-4 h-4" />
+        <span className="hidden sm:inline text-sm">Logout</span>
+      </button>
+
+    </div>
+  </div>
+</header>
 
       <main className="max-w-7xl mx-auto px-4 py-4">
         {error && <p className="text-center text-sm text-red-400 mb-4">{error}</p>}
