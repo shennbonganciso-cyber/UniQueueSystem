@@ -14,7 +14,6 @@ import {
   TrendingUp,
   Users,
   XCircle,
-  Settings,
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { Footer } from "./Footer";
@@ -258,13 +257,7 @@ export function StudentDashboard() {
     {/* RIGHT SIDE BUTTONS */}
     <div className="flex items-center gap-2">
 
-      {/* SETTINGS BUTTON */}
-      <button
-        onClick={() => navigate("/student/settings")}
-        className="px-4 py-2.5 text-sm text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all"
-      >
-        Settings
-      </button>
+      
 
       {/* LOGOUT BUTTON */}
       <button
@@ -274,9 +267,9 @@ export function StudentDashboard() {
         <LogOut className="w-4 h-4" />
         <span className="hidden sm:inline text-sm">Logout</span>
       </button>
-
+</div>
     </div>
-  </div>
+  
 </header>
 
       <main className="max-w-7xl mx-auto px-4 py-4">

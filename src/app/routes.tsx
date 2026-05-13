@@ -8,7 +8,6 @@ import { QueueConfirmation } from "./components/QueueConfirmation";
 import { StaffDashboard } from "./components/StaffDashboard";
 import { QueueMonitoring } from "./components/QueueMonitoring";
 import { ReportsPage } from "./components/ReportsPage";
-import { StudentSettings } from "./components/StudentSettings";
 import { RouteGuard } from "./components/RouteGuard";
 
 const routes: RouteObject[] = [
@@ -18,16 +17,13 @@ const routes: RouteObject[] = [
     children: [
       { index: true, Component: LoginPage },
       {
-        path: "student",
-        element: (
-          <RouteGuard allowedRoles={["student"]}>
-            <StudentDashboard />
-          </RouteGuard>
-        ),
-        children: [
-          { path: "settings", Component: StudentSettings },
-        ],
-      },
+  path: "student",
+  element: (
+    <RouteGuard allowedRoles={["student"]}>
+      <StudentDashboard />
+    </RouteGuard>
+  ),
+},
       { path: "services", Component: ServiceSelection },
       { path: "queue-confirmation", Component: QueueConfirmation },
       {
