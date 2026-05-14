@@ -14,16 +14,42 @@ function startOfDay(date: Date) {
 
 function isInRange(ticket: QueueTicket, range: string) {
   const created = new Date(ticket.createdAt);
-  const today = startOfDay(new Date());
+  const now = new Date();
 
   if (range === "today") {
-    return created >= today;
+    const startToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+
+    return created >= startToday;
   }
 
-  const days = range === "month" ? 30 : 7;
-  const start = new Date(today);
-  start.setDate(start.getDate() - (days - 1));
-  return created >= start;
+  if (range === "week") {
+    const startWeek = new Date(now);
+
+    // Monday as first day
+    const day = now.getDay();
+    const diff = day === 0 ? 6 : day - 1;
+
+    startWeek.setDate(now.getDate() - diff);
+    startWeek.setHours(0, 0, 0, 0);
+
+    return created >= startWeek;
+  }
+
+  if (range === "month") {
+    const startMonth = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      1
+    );
+
+    return created >= startMonth;
+  }
+
+  return true;
 }
 
 function getDayLabel(dateValue: string) {
@@ -40,7 +66,7 @@ export function ReportsPage() {
   const loadTickets = async () => {
     try {
       setError("");
-      setTickets(await getQueueTickets({ date: "today" }));
+      setTickets(await getQueueTickets());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to load reports");
     }
@@ -68,21 +94,74 @@ export function ReportsPage() {
   const todayTickets = tickets;
   const completedTickets = filteredTickets.filter((ticket) => ticket.status === "completed");
   const totalPatients = filteredTickets.length;
-  const avgWait = filteredTickets.length
-    ? Math.round(filteredTickets.reduce((sum, ticket) => sum + Number(getWaitTime(ticket).replace("m", "")), 0) / filteredTickets.length)
-    : 0;
+const completedForWait = filteredTickets.filter(
+  (ticket) => ticket.status === "completed"
+);
+
+const avgWait = completedForWait.length
+  ? Math.round(
+      completedForWait.reduce((sum, ticket) => {
+        const created = new Date(ticket.createdAt).getTime();
+        const updated = new Date(ticket.updatedAt).getTime();
+
+        const waitMinutes = Math.max(
+          0,
+          Math.round((updated - created) / 60000)
+        );
+
+        return sum + waitMinutes;
+      }, 0) / completedForWait.length
+    )
+  : 0;
   const completionRate = totalPatients ? Math.round((completedTickets.length / totalPatients) * 100) : 0;
 
-  const dailyData = Object.values(
-    filteredTickets.reduce<Record<string, { day: string; patients: number; avgWait: number; totalWait: number }>>((acc, ticket) => {
-      const day = getDayLabel(ticket.createdAt);
-      acc[day] ??= { day, patients: 0, avgWait: 0, totalWait: 0 };
-      acc[day].patients += 1;
-      acc[day].totalWait += Number(getWaitTime(ticket).replace("m", ""));
-      acc[day].avgWait = Math.round(acc[day].totalWait / acc[day].patients);
-      return acc;
-    }, {}),
-  );
+const dailyData = Object.values(
+  filteredTickets.reduce<
+    Record<
+      string,
+      {
+        day: string;
+        patients: number;
+        avgWait: number;
+        totalWait: number;
+      }
+    >
+  >((acc, ticket) => {
+
+    if (ticket.status !== "completed") {
+  return acc;
+}
+    const day = getDayLabel(ticket.createdAt);
+
+    acc[day] ??= {
+      day,
+      patients: 0,
+      avgWait: 0,
+      totalWait: 0,
+    };
+
+    acc[day].patients += 1;
+    const created = new Date(ticket.createdAt).getTime();
+const updated = new Date(ticket.updatedAt).getTime();
+
+const waitMinutes = Math.max(
+  0,
+  Math.round((updated - created) / 60000)
+);
+
+acc[day].totalWait += waitMinutes;
+
+    acc[day].avgWait = Math.round(
+      acc[day].totalWait / acc[day].patients
+    );
+
+    return acc;
+  }, {})
+).sort((a, b) => {
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  return days.indexOf(a.day) - days.indexOf(b.day);
+});
 
   const serviceData = (["consultation", "documentation"] as ServiceType[]).map((serviceType) => {
     const count = filteredTickets.filter((ticket) => ticket.serviceType === serviceType).length;
