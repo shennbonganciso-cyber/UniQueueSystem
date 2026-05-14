@@ -67,7 +67,11 @@ export function StaffDashboard() {
   const documentationQueue = activeTickets.filter((ticket) => ticket.serviceType === "documentation").map(toQueueItem);
   const currentQueue = activeTab === "consultation" ? consultationQueue : documentationQueue;
   const servingItem = currentQueue.find((item) => item.status === "serving");
-  const totalServedToday = tickets.filter((ticket) => ticket.status === "completed").length;
+  const totalServedToday = tickets.filter(
+  (ticket) =>
+    ticket.status === "completed" &&
+    ticket.serviceType === activeTab
+).length;
   const averageWait = currentQueue.length
     ? Math.round(currentQueue.reduce((sum, item) => sum + Number(item.waitTime.replace("m", "")), 0) / currentQueue.length)
     : 0;
