@@ -309,7 +309,7 @@ export function StaffDashboard() {
               <h3 className="text-base mb-4">Statistics</h3>
               <div className="space-y-2">
                 <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/10">
-                  <span className="text-xs text-slate-400">Total Served Today</span>
+                  <span className="text-xs text-slate-400">Total Served</span>
                   <span className="text-xl bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">{totalServedToday}</span>
                 </div>
                 <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/10">
