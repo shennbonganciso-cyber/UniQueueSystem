@@ -42,7 +42,7 @@ export function StaffDashboard() {
   const loadTickets = async () => {
     try {
       setError("");
-      const data = await getQueueTickets({ date: "today" });
+      const data = await getQueueTickets();
       setTickets(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to load queues");
